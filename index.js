@@ -1,7 +1,7 @@
 var extend    = require('extend')
   , mongoose  = require.main.require('mongoose')
   , Schema    = mongoose.Schema
-  , htmlStrip = require('htmlstrip-native')
+  , striptags = require('striptags')
 
 function defaultURLSlugGeneration(text, separator) {
   if (!text) return ''
@@ -118,19 +118,13 @@ module.exports = function(slugFields, options) {
       var toSlugify = '';
 
       if (options.isStripHtml) {
-        var htmlStripOptions = {
-          include_script     : false
-        , include_style      : false
-        , compact_whitespace : true
-        }
-
         if (slugFields instanceof Array) {
           for (var i = 0; i < slugFields.length; i++) {
             var slugField = slugFields[i];
             if (doc.isModified(slugField)) slugFieldsModified = true;
 
             var tmpSlugField = doc.get(slugField, String)
-              , slugPart = tmpSlugField ? htmlStrip.html_strip(tmpSlugField, htmlStripOptions) : tmpSlugField
+              , slugPart = tmpSlugField ? striptags(tmpSlugField) : tmpSlugField
 
             if (slugPart) toSlugify +=  slugPart + ' ';
           }
@@ -139,7 +133,7 @@ module.exports = function(slugFields, options) {
           if (doc.isModified(slugFields)) slugFieldsModified = true;
 
           var tmpSlugField = doc.get(slugFields, String)
-          toSlugify = tmpSlugField ? htmlStrip.html_strip(tmpSlugField, htmlStripOptions) : tmpSlugField
+          toSlugify = tmpSlugField ? striptags(tmpSlugField) : tmpSlugField
         }
       } else {
         if (slugFields instanceof Array) {
